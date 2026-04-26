@@ -29,7 +29,7 @@ const Auth = () => {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/vault` },
+          options: { emailRedirectTo: `${window.location.origin}${import.meta.env.BASE_URL}vault` },
         });
         if (error) throw error;
         toast({ title: "Welcome aboard ☁️", description: "Your vault is ready." });
