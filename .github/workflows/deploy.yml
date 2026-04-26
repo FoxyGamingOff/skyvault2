@@ -1,0 +1,43 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      - run: bun run build
+        env:
+          VITE_SUPABASE_PROJECT_ID: wiawtplpmezsdlznwzgr
+          VITE_SUPABASE_URL: https://wiawtplpmezsdlznwzgr.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpYXd0cGxwbWV6c2Rsem53emdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDQ1MjgsImV4cCI6MjA5MjM4MDUyOH0.5al0SvyBku-au81spverrZxVM58iraoL3Jirm9NuLBA
+      - run: cp dist/index.html dist/404.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
